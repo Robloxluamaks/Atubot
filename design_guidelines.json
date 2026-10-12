@@ -1,0 +1,198 @@
+{
+  "project_identity_and_concept": {
+    "app_name": "Discord AutoSender Pro",
+    "app_type": "saas_utility_dashboard",
+    "target_audience": "Administratorzy serwerów Discord, twórcy społeczności, menedżerowie ogłoszeń botowych",
+    "ui_language": "pl-PL (Polski)",
+    "aesthetic_archetype": "Archetype 2: The Performance Pro / Tactical Discord OLED Dark Mode",
+    "emotional_tone": "Precyzja, bezawaryjność, profesjonalizm, natywny klimatyczny interfejs Discorda",
+    "design_freedom_level": "High functionality & tactical polish, initial dark-first viewport optimized for immediate workflow"
+  },
+  "color_palette_system": {
+    "theme_strategy": "Dark-First OLED Tactical (z przełącznikiem Light/Dark w nagłówku)",
+    "primary_brand_blurple": {
+      "default": "#5865F2",
+      "hover": "#4752C4",
+      "active": "#3C45A5",
+      "contrast_text": "#FFFFFF",
+      "usage": "Główne przyciski Akcji (Wyślij wiadomość, Połącz token), aktywne taby, wybrane stany"
+    },
+    "status_colors": {
+      "connected_green": {
+        "hex": "#23A55A",
+        "bg_subtle": "rgba(35, 165, 90, 0.15)",
+        "border": "rgba(35, 165, 90, 0.3)",
+        "label": "Połączono / Sukces wysyłki (200 OK)"
+      },
+      "destructive_red": {
+        "hex": "#F23F43",
+        "bg_subtle": "rgba(242, 63, 67, 0.15)",
+        "border": "rgba(242, 63, 67, 0.3)",
+        "label": "Brak połączenia / Błąd (403/404/429)"
+      },
+      "warning_amber": {
+        "hex": "#FEE75C",
+        "bg_subtle": "rgba(254, 231, 92, 0.15)",
+        "border": "rgba(254, 231, 92, 0.3)",
+        "label": "Rate Limit / Ostrzeżenie"
+      }
+    },
+    "dark_neutrals": {
+      "app_background": "#0F1012",
+      "sidebar_panel": "#1E1F22",
+      "card_surface": "#2B2D31",
+      "discord_chat_bg": "#313338",
+      "input_bg": "#1E1F22",
+      "border_subtle": "rgba(255, 255, 255, 0.08)",
+      "border_focus": "#5865F2"
+    },
+    "text_colors": {
+      "heading": "#F2F3F5",
+      "body": "#DBDEE1",
+      "muted": "#949BA4",
+      "interactive": "#FFFFFF"
+    },
+    "contrast_rules": "Minimalny stosunek kontrastu 4.5:1 (WCAG AA) dla wszystkich napisów i przycisków. Hover zawsze jawnie zmienia text-color."
+  },
+  "typography_system": {
+    "heading_font": "Barlow Condensed, Outfit, sans-serif",
+    "body_font": "Inter, DM Sans, sans-serif",
+    "code_font": "JetBrains Mono, Source Code Pro, monospace",
+    "hierarchy_rules": {
+      "h1_title": "text-2xl sm:text-3xl font-extrabold tracking-tight text-white",
+      "h2_section_header": "text-lg sm:text-xl font-bold tracking-normal text-gray-100",
+      "h3_label": "text-xs font-semibold uppercase tracking-wider text-gray-400",
+      "body_text": "text-sm font-normal text-gray-200 leading-relaxed",
+      "mono_token_id": "text-xs font-mono tracking-tight"
+    }
+  },
+  "layout_and_grid_strategy": {
+    "header_bar": "Sticky header (h-16, backdrop-blur-md bg-[#1E1F22]/90 border-b border-white/10 z-50) z logo Discord AutoSender, statusem połączenia bota, przyciskiem FAQ oraz przełącznikiem motywu",
+    "desktop_grid": "3-kolumnowy Bento Grid (grid-cols-12 gap-6 p-6 max-w-7xl mx-auto)",
+    "columns_breakdown": {
+      "left_column": {
+        "span": "col-span-12 lg:col-span-4 space-y-6",
+        "components": [
+          "Panel Połączenia Tokenem Bot (Input z maskowaniem, przycisk Połącz/Rozłącz, wskaźnik stanu bota)",
+          "Zarządzanie Kanałami (Input ID kanału + Etykieta, lista do 10 kanałów z przełącznikami on/off i usuwaniem)"
+        ]
+      },
+      "middle_column": {
+        "span": "col-span-12 lg:col-span-4 space-y-6",
+        "components": [
+          "Kompozytor Wiadomości (Textarea 2000 znaków z pasekiem postępu i licznikiem)",
+          "Pasek Szybkiego Formatowania Discord (**bold**, *italic*, `code`, quote, @everyone)",
+          "Wyszukiwarka Emoji z Popoverem (kategorie: Uśmiechy, Gesty, Discord, Symbole)",
+          "Parametry Wysyłki (Odstęp czasowy w ms, opcje powtórzeń)",
+          "Główny Przycisk CTA: 'WYŚLIJ DO [N] KANAŁÓW'"
+        ]
+      },
+      "right_column": {
+        "span": "col-span-12 lg:col-span-4 space-y-6",
+        "components": [
+          "Podgląd Wiadomości Na Żywo (Natywny wygląd czatu Discord: avatar bota, znacznik BOT, formatowanie markdown)",
+          "Raport Wysyłki Na Żywo (Karty wyników per kanał z kodami statusu HTTP i opisem)",
+          "Historia Sesji (Tabela wysłanych wiadomości z możliwością ponownego załadowania tekstu)"
+        ]
+      }
+    },
+    "mobile_responsive": "Na ekranach mobilnych (<1024px) kolumny układają się pionowo (1 kolumna). Podgląd wiadomości i historia są dostępne w zakładkach lub zwijanych sekcjach."
+  },
+  "key_functionalities_details": [
+    {
+      "feature_id": "token_auth",
+      "name_pl": "Autoryzacja Tokenem Bota",
+      "details": "Pole Input typu password z ikoną oka (pokaż/ukryj). Przycisk 'Połącz Token'. Walidacja formatu tokena. Szczery stan połączenia: 'Niezalogowany', 'Łączenie...', 'Połączono jako [NazwaBota]'.",
+      "mock_note": "MOCKED BACKEND FLOW: Endpoint /api/bot/verify sprawdzający poprawność tokena i zwracający profil bota (nazwa, avatar, tag)."
+    },
+    {
+      "feature_id": "channel_manager",
+      "name_pl": "Zarządzanie Lista Kanałów (Limit 10)",
+      "details": "Formularz dodawania: ID Kanału (Snowflake 18-19 cyfr) oraz opcjonalna własna etykieta (np. 'Ogłoszenia', 'Regulamin'). Lista z opcją włącz/wyłącz (Switch), usuwania oraz szybkiego kopiowania ID. Licznik aktywnych kanałów (np. 3/10).",
+      "mock_note": "Zapisywane w stanie lokalnym / session storage. Przycisk 'Wyczyść wszystkie'."
+    },
+    {
+      "feature_id": "message_composer",
+      "name_pl": "Kompozytor Wiadomości & Emoji Picker",
+      "details": "Pole Textarea o limicie 2000 znaków. Pasek błędu/ostrzeżenia przy zbliżaniu się do limitu (np. >1900 znaków). Szybki pasek narzędzi formatowania Markdown (Pogrubienie, Kursywa, Blok kodu, Cytat, Wzmianka @everyone). Przycisk 'Emoji' otwierający Popover z wyszukiwarką emoji i opcją wstawiania w miejsce kursora.",
+      "mock_note": "Integracja wstawiania emoji bez przeładowania pola tekstowego."
+    },
+    {
+      "feature_id": "discord_live_preview",
+      "name_pl": "Podgląd Wiadomości Discord Na Żywo",
+      "details": "Komponent imitujący wygląd wiadomości na Discordzie (ciemne tło #313338, avatar bota, nazwa bota, niebieska odznaka 'BOT', czas wysłania 'Dzisiaj o [godzina]', parsowany tekst z pogrubieniem, kodem i emoji).",
+      "mock_note": "Podgląd reaktywny w czasie rzeczywistym."
+    },
+    {
+      "feature_id": "dispatch_engine",
+      "name_pl": "Silnik Wysyłki & Logi Wyników",
+      "details": "Przycisk CTA 'WYŚLIJ WIADOMOŚĆ'. Wskaźnik postępu (Progress bar 0-100%). Karta wyników wysyłki z rozbiciem na każdy wySelected kanał: ID Kanału -> Status (np. '200 OK - Wysłano', '403 Forbidden - Brak uprawnień', '429 Rate Limited'). Toast z podsumowaniem.",
+      "mock_note": "MOCKED BACKEND FLOW: Endpoint /api/messages/send symulujący lub wykonujący wysyłkę z opóźnieniem per kanał."
+    },
+    {
+      "feature_id": "setup_faq_modal",
+      "name_pl": "Instrukcja Konfiguracji & FAQ",
+      "details": "Okno dialogowe (Dialog) krok po kroku: 1. Jak zdobyć Token Bota na Discord Developer Portal. 2. Uprawnienia bota (Send Messages, Read Message History). 3. Jak skopiować ID Kanału w Discordzie.",
+      "mock_note": "Statyczny czytelny poradnik ze zdjęciami/zrzutami ekranu."
+    }
+  ],
+  "image_urls": {
+    "discord_icon_dark": "https://images.unsplash.com/photo-1614680376739-414d95ff43df?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjY2NjV8MHwxfHNlYXJjaHwyfHxkaXNjb3JkJTIwYm90JTIwYXZhdGFyJTIwZGFyayUyMHRoZW1lJTIwaWNvbnxlbnwwfHx8fDE3OTE4MDc2NjB8MA&ixlib=rb-4.1.0&q=85",
+    "discord_bot_avatar": "https://images.unsplash.com/photo-1683029096295-7680306aa37d?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjY2NjV8MHwxfHNlYXJjaHwxfHxkaXNjb3JkJTIwYm90JTIwYXZhdGFyJTIwZGFyayUyMHRoZW1lJTIwaWNvbnxlbnwwfHx8fDE3OTE4MDc2NjB8MA&ixlib=rb-4.1.0&q=85",
+    "discord_blue_badge": "https://images.unsplash.com/photo-1679057001914-59ab4131dfff?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjY2NjV8MHwxfHNlYXJjaHwzfHxkaXNjb3JkJTIwYm90JTIwYXZhdGFyJTIwZGFyayUyMHRoZW1lJTIwaWNvbnxlbnwwfHx8fDE3OTE4MDc2NjB8MA&ixlib=rb-4.1.0&q=85"
+  },
+  "component_and_shadcn_mapping": {
+    "card": "src/components/ui/card.jsx (Wersja skustomizowana: bg-[#2B2D31] border-white/10 rounded-xl shadow-lg)",
+    "button": "src/components/ui/button.jsx (Styl Blurple: bg-[#5865F2] hover:bg-[#4752C4] active:scale-[0.98] transition-all)",
+    "input": "src/components/ui/input.jsx (Tło #1E1F22, border-white/10, focus:border-[#5865F2] focus:ring-1 focus:ring-[#5865F2])",
+    "textarea": "src/components/ui/textarea.jsx (Tło #1E1F22, font-sans text-sm, resize-none min-h-[140px])",
+    "badge": "src/components/ui/badge.jsx (Dla statusu bota, tagu BOT i zliczeń kanałów)",
+    "switch": "src/components/ui/switch.jsx (Włącznik/wyłącznik dla pojedynczych kanałów)",
+    "dialog": "src/components/ui/dialog.jsx (Dla instrukcji konfiguracji i FAQ)",
+    "popover": "src/components/ui/popover.jsx (Dla wyboru emoji)",
+    "tabs": "src/components/ui/tabs.jsx (Dla widoku mobilnego oraz przełączania historii)",
+    "scroll_area": "src/components/ui/scroll-area.jsx (Dla przewijania listy kanałów i logów)",
+    "progress": "src/components/ui/progress.jsx (Dla wskaźnika wysyłki i długości wiadomości)",
+    "sonner": "src/components/ui/sonner.tsx (Dla powiadomień toast o sukcesie/błędzie)"
+  },
+  "data_testid_specifications": {
+    "token_input": "bot-token-input",
+    "token_toggle_visibility": "bot-token-toggle-visibility-button",
+    "token_connect_button": "bot-token-connect-button",
+    "token_status_badge": "bot-token-status-badge",
+    "channel_id_input": "channel-id-input",
+    "channel_label_input": "channel-label-input",
+    "channel_add_button": "channel-add-button",
+    "channel_item_prefix": "channel-item-",
+    "channel_toggle_prefix": "channel-toggle-",
+    "channel_delete_prefix": "channel-delete-",
+    "message_textarea": "message-composer-textarea",
+    "char_counter": "message-char-counter",
+    "emoji_picker_trigger": "emoji-picker-trigger-button",
+    "emoji_search_input": "emoji-search-input",
+    "emoji_item_prefix": "emoji-item-",
+    "fmt_bold_button": "format-bold-button",
+    "fmt_code_button": "format-code-button",
+    "send_messages_button": "send-messages-submit-button",
+    "live_preview_container": "discord-live-preview-card",
+    "dispatch_progress_bar": "dispatch-progress-bar",
+    "dispatch_result_item_prefix": "dispatch-result-item-",
+    "history_tab_trigger": "history-tab-trigger",
+    "faq_dialog_trigger": "faq-dialog-trigger-button"
+  },
+  "instructions_to_main_agent": [
+    "Wszystkie napisy w interfejsie muszą być w języku POLSKIM.",
+    "Brak zmyślonych statystyk/oszukanych połączonych stanów — wdrożyć prawdziwą walidację i jasne stany błędu.",
+    "Token Discord Bot powinien posiadać opcję ukrywania/pokazywania wartości (typ password/text).",
+    "Limit kanałów wynosi max 10. Każdy kanał posiada opcję przełączania (aktywny/nieaktywny) oraz usuwania.",
+    "Podgląd wiadomości Discord powinien wiernie oddawać wygląd wiadomości na czacie Discord (dark mode #313338).",
+    "Przycisk wysyłania powinien pokazywać dynamicznie liczbę wybranych aktywnych kanałów, np. 'Wyślij do 3 kanałów'.",
+    "Wszystkie interaktywne elementy MUSZĄ zawierać podane atrybuty data-testid.",
+    "Wszelkie integracje backendowe (wysyłka API Discorda / weryfikacja bota) oznaczyć czytelnie jako MOCKED lub real w serwisie API."
+  ],
+  "UNIVERSAL GUIDELINES FOR MAIN AGENT": [
+    "Nie używaj uniwersalnych przejść (transition: all). Używaj ukierunkowanych właściwości transition.",
+    "Zapewnij wysoki kontrast (WCAG AA) we wszystkich stanach hover i focus.",
+    "Wszystkie elementy interaktywne muszą posiadać unikalne data-testid."
+  ]
+}

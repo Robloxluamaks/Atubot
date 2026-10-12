@@ -1,0 +1,37 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;450;500;550;600;650;700&family=Outfit:wght@400;500;550;600;650;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+    --background: 225 10% 8%;
+    --foreground: 220 12% 93%;
+    --card: 225 9% 11%;
+    --card-foreground: 220 12% 93%;
+    --popover: 225 9% 13%;
+    --popover-foreground: 220 12% 93%;
+    --primary: 234 85% 69%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 225 7% 16%;
+    --secondary-foreground: 220 12% 93%;
+    --muted: 225 7% 16%;
+    --muted-foreground: 225 7% 65%;
+    --accent: 225 7% 19%;
+    --accent-foreground: 220 12% 93%;
+    --destructive: 0 73% 65%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 225 8% 20%;
+    --input: 225 8% 22%;
+    --ring: 234 85% 69%;
+    --radius: 0.5rem;
+  }
+  * { @apply border-border; box-sizing: border-box; letter-spacing: 0; }
+  body { @apply bg-background text-foreground; margin: 0; font-family: 'DM Sans', sans-serif; -webkit-font-smoothing: antialiased; }
+  button, input, textarea, a { -webkit-tap-highlight-color: transparent; }
+  button, a { touch-action: manipulation; }
+  button:focus-visible, a:focus-visible { outline: 2px solid #7c88ff; outline-offset: 4px; }
+  ::selection { background: #6674e760; color: #fff; }
+  [data-debug-wrapper='true'] { display: contents !important; }
+}
