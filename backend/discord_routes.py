@@ -2,29 +2,30 @@ import hashlib
 import os
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 
 from discord_models import (BotProfile, ChannelProfile, ChannelRequest, ChannelResult,
                             SendRequest, SendResponse, TokenRequest)
 from discord_service import discord_request, get_bot, get_channel, make_client
+from rate_limit import throttle
 
 router = APIRouter(prefix='/api')
 
 
-@router.post('/bot/connect', response_model=BotProfile)
+@router.post('/bot/connect', response_model=BotProfile, dependencies=[Depends(throttle(10))])
 async def connect(payload: TokenRequest):
     async with make_client(payload.token.get_secret_value()) as client:
         return await get_bot(client)
 
 
-@router.post('/channels/resolve', response_model=ChannelProfile)
+@router.post('/channels/resolve', response_model=ChannelProfile, dependencies=[Depends(throttle(30))])
 async def resolve(payload: ChannelRequest):
     async with make_client(payload.token.get_secret_value()) as client:
         await get_bot(client)
         return await get_channel(client, payload.channel_id)
 
 
-@router.post('/messages/send', response_model=SendResponse)
+@router.post('/messages/send', response_model=SendResponse, dependencies=[Depends(throttle(12))])
 async def send(payload: SendRequest):
     return await send_batch(payload)
 

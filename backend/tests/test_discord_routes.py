@@ -194,3 +194,50 @@ class TestConnectResolveErrors:
         assert response.status_code == 400
         data = response.json()
         assert 'Wybierz kanał tekstowy' in data['detail']
+
+
+# Discord routes are gated behind the workspace session + Origin check and throttled per session
+class TestDiscordRouteGating:
+    def test_connect_without_origin_is_403(self, anonymous_client):
+        response = anonymous_client.post('/api/bot/connect', json={'token': 'A' * 30})
+        assert response.status_code == 403
+        assert 'A' * 30 not in response.text
+
+    def test_connect_without_session_is_401(self, anonymous_client):
+        response = anonymous_client.post('/api/bot/connect', json={'token': 'A' * 30},
+                                         headers={'Origin': 'https://testserver'})
+        assert response.status_code == 401
+        assert 'Przestrzeń wygasła' in response.json()['detail']
+
+    def test_send_and_resolve_without_session_are_401(self, anonymous_client):
+        headers = {'Origin': 'https://testserver'}
+        send = anonymous_client.post('/api/messages/send', headers=headers, json={
+            'token': 'A' * 30, 'channel_ids': ['12345678901234567'], 'content': 'x', 'request_id': str(uuid4()),
+        })
+        resolve = anonymous_client.post('/api/channels/resolve', headers=headers,
+                                        json={'token': 'A' * 30, 'channel_id': '12345678901234567'})
+        assert send.status_code == 401
+        assert resolve.status_code == 401
+
+    def test_connect_is_rate_limited_per_session(self, client, monkeypatch, patch_make_client):
+        import discord_routes
+
+        async def fake_get_bot(_client):
+            raise HTTPException(401, 'Nieprawidłowy lub wygasły token bota.')
+
+        monkeypatch.setattr(discord_routes, 'get_bot', fake_get_bot)
+        statuses = [client.post('/api/bot/connect', json={'token': 'A' * 30}).status_code for _ in range(11)]
+        assert statuses[:10] == [401] * 10
+        assert statuses[10] == 429
+        limited = client.post('/api/bot/connect', json={'token': 'A' * 30})
+        assert limited.status_code == 429
+        assert 'Retry-After' in limited.headers
+        assert 'Zbyt wiele prób' in limited.json()['detail']
+
+    def test_security_headers_present(self, client):
+        response = client.get('/api/health')
+        assert response.headers['X-Frame-Options'] == 'DENY'
+        assert response.headers['Content-Security-Policy'] == "frame-ancestors 'none'"
+        assert response.headers['Referrer-Policy'] == 'no-referrer'
+        assert response.headers['Strict-Transport-Security'].startswith('max-age=')
+        assert response.headers['Cache-Control'] == 'no-store'
