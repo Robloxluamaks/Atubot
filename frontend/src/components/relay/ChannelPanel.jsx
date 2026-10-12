@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Check, CircleHelp, Hash, Plus, X } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -7,7 +8,8 @@ import { useRelay } from '../../context/RelayContext';
 import { SectionTitle, Spinner } from './Primitives';
 
 export const ChannelPanel = () => {
-  const { channels, setChannels, selected, token, bot, sending, setHelpOpen } = useRelay();
+  const { channels, setChannels, selected, token, bot, sending, setHelpOpen, workspace } = useRelay();
+  const navigate = useNavigate();
   const [id, setId] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -38,5 +40,6 @@ export const ChannelPanel = () => {
       </div>) : <div className="empty-channels" data-testid="channels-empty-state"><span className="empty-hash"><Hash size={20} /></span><div>Jeszcze żadnych kanałów<span>Twoi odbiorcy pojawią się tutaj.</span></div><span className="channel-empty-lines"><i /><i /><i /></span></div>}
     </div>
     <div className="channels-footnote"><span data-testid="selected-channel-count">{selected.length} wybranych kanałów</span><span>Maksymalnie 10 kanałów</span></div>
+    {selected.length > 0 && <Button variant="ghost" size="sm" className="save-group-button" disabled={sending || !workspace} data-testid="save-channel-group-button" onClick={() => navigate('/grupy', { state: { capture: { channels: selected.map(c => ({ id: c.id, name: c.name })) } } })}>Zapisz jako grupę</Button>}
   </section>;
 };

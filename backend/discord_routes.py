@@ -26,11 +26,17 @@ async def resolve(payload: ChannelRequest):
 
 @router.post('/messages/send', response_model=SendResponse)
 async def send(payload: SendRequest):
+    return await send_batch(payload)
+
+
+async def send_batch(payload: SendRequest, should_continue=None):
     results = []
     stopped = False
     async with make_client(payload.token.get_secret_value()) as client:
         await get_bot(client)
         for channel_id in payload.channel_ids:
+            if should_continue and not await should_continue():
+                stopped = True
             if stopped:
                 results.append(ChannelResult(channel_id=channel_id, status='skipped',
                     detail='Pominięto po błędzie połączenia lub limicie Discorda.'))
@@ -42,7 +48,9 @@ async def send(payload: SendRequest):
                 nonce = hashlib.sha256(f'{payload.request_id}:{channel_id}'.encode()).hexdigest()[:25]
                 posting = True
                 message = await discord_request(client, 'POST', f'/channels/{channel_id}/messages', json={
-                    'content': payload.content, 'allowed_mentions': {'parse': []},
+                    'content': payload.overrides.get(channel_id, payload.content),
+                    'embeds': [payload.embed.discord_json()] if payload.embed else [],
+                    'allowed_mentions': {'parse': []},
                     'nonce': nonce, 'enforce_nonce': True,
                 })
                 results.append(ChannelResult(

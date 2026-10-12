@@ -10,6 +10,6 @@ export const HelpDialog = () => {
       <li><KeyRound /><div><h3>Utwórz bota i pobierz token</h3><p>Discord Developer Portal → New Application → Bot → Reset Token. Skopiuj token i wklej w pole „Token bota”. Nie udostępniaj go innym.</p><a href="https://discord.com/developers/applications" target="_blank" rel="noreferrer" data-testid="discord-portal-link">Otwórz Developer Portal <ArrowUpRight size={14} /></a></div></li>
       <li><Bot /><div><h3>Dodaj bota na swój serwer</h3><p>W OAuth2 → URL Generator zaznacz „bot”, następnie uprawnienia „View Channels” i „Send Messages”. Otwórz wygenerowany link. Dla wątków dodaj „Send Messages in Threads”.</p></div></li>
       <li><Hash /><div><h3>Skopiuj ID kanału</h3><p>Discord → Ustawienia użytkownika → Zaawansowane → Tryb deweloperski. Kliknij prawym przyciskiem wybrany kanał → Kopiuj ID kanału.</p></div></li>
-    </ol><div className="privacy-note"><ShieldCheck size={18} /><p>Token jest wysyłany szyfrowanym połączeniem do serwera i dalej do Discorda. Nie zapisujemy tokenów. Odświeżenie karty kończy sesję.</p></div>
+    </ol><div className="privacy-note"><ShieldCheck size={18} /><p>Token jest przesyłany szyfrowanym połączeniem. Bieżące połączenie znika po odświeżeniu karty. Tylko harmonogram, za Twoją zgodą, zachowuje zaszyfrowaną kopię tokenu do zakończenia zadania.</p></div>
   </DialogContent></Dialog>;
 };

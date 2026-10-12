@@ -2,9 +2,9 @@ import re
 from typing import Annotated, Literal
 from uuid import UUID
 
-from pydantic import BaseModel, Field, SecretStr, StringConstraints, field_validator
+from pydantic import BaseModel, Field, SecretStr, field_validator, model_validator
+from message_models import MessageDraft, Snowflake
 
-Snowflake = Annotated[str, StringConstraints(pattern=r'^[0-9]{17,20}$')]
 
 
 class TokenRequest(BaseModel):
@@ -25,9 +25,8 @@ class ChannelRequest(TokenRequest):
     channel_id: Snowflake
 
 
-class SendRequest(TokenRequest):
+class SendRequest(TokenRequest, MessageDraft):
     channel_ids: list[Snowflake] = Field(min_length=1, max_length=10)
-    content: str = Field(min_length=1, max_length=2000)
     request_id: UUID
 
     @field_validator('channel_ids')
@@ -37,12 +36,13 @@ class SendRequest(TokenRequest):
             raise ValueError('Kanały nie mogą się powtarzać.')
         return values
 
-    @field_validator('content')
-    @classmethod
-    def valid_content(cls, value):
-        if not value.strip() or len(value.encode('utf-16-le')) // 2 > 2000:
-            raise ValueError('Wiadomość musi zawierać 1–2000 znaków.')
-        return value
+    @model_validator(mode='after')
+    def valid_messages(self):
+        if not self.valid_for(self.channel_ids):
+            raise ValueError('Każdy kanał wymaga treści lub embeda.')
+        if set(self.overrides) - set(self.channel_ids):
+            raise ValueError('Wariant musi należeć do wybranego kanału.')
+        return self
 
 
 class BotProfile(BaseModel):

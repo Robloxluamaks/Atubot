@@ -26,7 +26,7 @@ export const ConnectionPanel = () => {
       <div className="connection-input-row"><div className="token-field ph-no-capture ph-sensitive" data-private="true"><KeyRound size={16} /><Input id="bot-token" data-testid="bot-token-input" type={visible ? 'text' : 'password'} autoComplete="off" spellCheck={false} maxLength={204} placeholder="Wklej token swojego bota" value={token} disabled={loading} onChange={e => { setToken(e.target.value); setError(''); }} /><Button type="button" variant="ghost" size="icon" aria-label={visible ? 'Ukryj token' : 'Pokaż token'} title={visible ? 'Ukryj token' : 'Pokaż token'} data-testid="bot-token-toggle-visibility-button" onClick={() => setVisible(!visible)}>{visible ? <EyeOff size={16} /> : <Eye size={16} />}</Button></div><Button className="connect-button" type="submit" disabled={!token.trim() || loading} data-testid="bot-token-connect-button">{loading ? <Spinner /> : <Link2 size={16} />}{loading ? 'Łączenie…' : 'Połącz bota'}</Button></div>
       {error && <p role="alert" data-testid="bot-connection-error" className="inline-error">{error}</p>}
     </form>}
-    <div className="connection-footnote"><span><LockKeyhole size={12} />Token nie jest zapisywany.</span><button type="button" data-testid="token-help-button" onClick={() => setHelpOpen(true)}>Skąd wziąć token? <span>↗</span></button></div>
+    <div className="connection-footnote"><span><LockKeyhole size={12} />To połączenie nie zapisuje tokenu.</span><button type="button" data-testid="token-help-button" onClick={() => setHelpOpen(true)}>Skąd wziąć token? <span>↗</span></button></div>
     <span className="sr-only"><ShieldCheck />Oficjalne konto bota</span>
   </section>;
 };

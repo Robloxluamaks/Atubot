@@ -1,0 +1,8 @@
+crons:
+  - name: relay-dispatch
+    description: "Wysyła zaplanowane wiadomości bota Discord co 15 minut."
+    cron: "*/15 * * * *"
+    # Cron endpoints must ack 2xx immediately; enqueue/background the actual work.
+    endpoint: "{{BASE_URL}}/api/cron/dispatch"
+    method: POST
+    enabled: true

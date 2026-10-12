@@ -19,7 +19,7 @@ def make_client(token: str):
 async def discord_request(client, method, path, **kwargs):
     try:
         response = await client.request(method, path, **kwargs)
-    except (httpx.TimeoutException, httpx.NetworkError):
+    except httpx.RequestError:
         message = ('Nie udało się potwierdzić wysyłki. Sprawdź kanał przed ponowieniem.'
                    if method == 'POST' else 'Brak odpowiedzi Discorda. Spróbuj ponownie później.')
         raise HTTPException(504, message) from None

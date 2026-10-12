@@ -1,10 +1,10 @@
 const base = process.env.REACT_APP_BACKEND_URL;
 if (!base) throw new Error('Brak konfiguracji adresu API.');
 
-export async function api(path, body) {
+export async function api(path, body, method = 'POST') {
   const response = await fetch(`${base}/api${path}`, {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body), cache: 'no-store',
+    method, headers: { 'Content-Type': 'application/json' }, credentials: 'include',
+    body: body === undefined ? undefined : JSON.stringify(body), cache: 'no-store',
   });
   let data;
   try { data = await response.json(); }

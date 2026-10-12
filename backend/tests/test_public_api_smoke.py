@@ -1,10 +1,23 @@
 import os
+from dotenv import dotenv_values
 
 import requests
 
 
 # Public deployment smoke tests (real preview URL, no credentialed success flow)
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL')
+def _clean(value):
+    if value is None:
+        return None
+    return str(value).strip().strip('"').strip("'")
+
+
+_cfg = {
+    **{k: _clean(v) for k, v in dotenv_values('/app/frontend/.env').items()},
+    **{k: _clean(v) for k, v in dotenv_values('/app/backend/.env').items()},
+    **{k: _clean(v) for k, v in os.environ.items()},
+}
+
+BASE_URL = _cfg.get('REACT_APP_BACKEND_URL')
 
 
 def test_base_url_present():

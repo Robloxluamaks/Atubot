@@ -1,0 +1,58 @@
+{
+  "summary": "Executed backend + frontend regression/integration tests for Relay safe scope on external preview. Backend suite: 32/33 passed with one privacy-cookie policy mismatch. Frontend critical flows validated including token errors, channels/limits, embed validation, template/group CRUD, per-channel variants, schedule consent and fake-token rejection.",
+  "backend_issues": {
+    "critical": [
+      {
+        "endpoint": "/api/workspace/session",
+        "issue": "Set-Cookie observed as SameSite=None; Partitioned (via preview edge), not required SameSite=Lax for __Host-relay_workspace acceptance criteria.",
+        "priority": "HIGH"
+      }
+    ],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {
+        "flow": "Manual send success path",
+        "issue": "Validated with TEST-ONLY intercepted response because no real Discord credentials were provided. Real outbound success remains unverified in this run.",
+        "affected_selectors": [
+          "[data-testid='send-messages-submit-button']",
+          "[data-testid='send-confirm-button']"
+        ]
+      }
+    ],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_relay_workspace_library_schedule_cron.py",
+    "/app/backend/tests/test_schedule_worker_unit.py",
+    "/app/backend/tests/test_message_payload_contract.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [
+    "Fix workspace cookie policy mismatch on preview/edge so __Host-relay_workspace is emitted with SameSite=Lax exactly as required.",
+    "Re-run one manual real-credential Discord delivery check (non-mocked) for send success if product acceptance requires live delivery evidence."
+  ],
+  "critical_code_review_comments": [
+    "Workspace backend code sets samesite='lax', but external response headers are rewritten to SameSite=None; Partitioned. Check ingress/CDN cookie normalization policy.",
+    "Origin enforcement, owner isolation, workspace delete cascade, schedule token redaction, cron idempotency, and invalid-token ciphertext erasure behavior are working in tested scenarios.",
+    "All tested API payload validations for embed/footer transform, allowed_mentions parse empty, and override ownership constraints are enforced."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_relay_workspace_library_schedule_cron.py",
+    "/app/backend/tests/test_schedule_worker_unit.py",
+    "/app/backend/tests/test_message_payload_contract.py",
+    "/app/test_reports/iteration_2.json"
+  ],
+  "success_rate": {
+    "backend": "97%",
+    "frontend": "88%"
+  },
+  "test_credentials": "No login/password accounts. Anonymous HttpOnly workspace cookie model used (per /app/memory/test_credentials.md).",
+  "seed_data_creation": "Temporary Mongo schedule fixtures were created for cron/worker verification and cleaned up at test teardown.",
+  "retest_needed": true,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Pytest currently has exactly 1 failing test: SameSite cookie requirement mismatch on /api/workspace/session. Cron dispatch tested with real endpoint + secret and due-schedule fixture; duplicate run_id idempotency passes. Frontend send success and mocked connect paths were tested using TEST-ONLY route interception (MOCKED) due absent real bot/channel credentials.",
+  "rca of the issue": "Repro: POST /api/workspace/session with correct Origin, inspect Set-Cookie header on preview URL. Expected SameSite=Lax, actual includes SameSite=None; Partitioned. Likely edge/CDN cookie attribute rewriting, not FastAPI route logic (route code sets samesite='lax'). Mitigation: align proxy cookie policy or bypass rewriting for __Host-relay_workspace, then re-verify externally."
+}
