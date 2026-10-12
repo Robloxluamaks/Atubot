@@ -9,6 +9,7 @@ from message_models import MessageDraft, Snowflake
 
 class TokenRequest(BaseModel):
     token: SecretStr
+    mode: Literal['bot', 'selfbot'] = 'bot'      # <-- NOWE
 
     @field_validator('token')
     @classmethod
@@ -16,9 +17,25 @@ class TokenRequest(BaseModel):
         raw = value.get_secret_value().strip()
         if raw.startswith('Bot '):
             raw = raw[4:].strip()
+        # token bota ORAZ token użytkownika (base64url + kropki) przechodzą ten sam wzorzec
         if not re.fullmatch(r'[A-Za-z0-9_.-]{20,200}', raw):
-            raise ValueError('Nieprawidłowy format tokenu bota.')
+            raise ValueError('Nieprawidłowy format tokenu.')
         return SecretStr(raw)
+
+
+class GuildRequest(TokenRequest):
+    guild_id: Snowflake
+
+
+class GuildProfile(BaseModel):
+    id: str
+    name: str
+
+
+class GuildChannelProfile(BaseModel):
+    id: str
+    name: str
+    type: int
 
 
 class ChannelRequest(TokenRequest):
@@ -71,3 +88,4 @@ class SendResponse(BaseModel):
     request_id: str
     sent_at: str
     results: list[ChannelResult]
+    
