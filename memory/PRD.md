@@ -83,6 +83,14 @@ Kolejna prośba: „to teraz dodaj self token oraz rozne ciekawe funkcje”. Uż
 - Testy w `/app/backend/tests/`; JUnit `/app/test_reports/pytest/pytest_results.xml`.
 - Pomocnicza sesja UI odwołana, plik z cookie usunięty. Helpery `/app/tests/seed_schedule_ui_fixture.py` / `cleanup_schedule_ui_fixture.py` używają wyłącznie prywatnego `/tmp/relay_test_artifacts` i odwołują całą testową sesję; zweryfikowano seed + cleanup.
 
+## Audyt bezpieczeństwa — 2026-06 (fork)
+- Wynik audytu: CONDITIONAL PASS. Brak podatności krytycznych/wysokich; brak wycieku tokenów, brak IDOR między przestrzeniami, CORS/CSRF/NoSQL/XSS poprawne.
+- SEC-001 (MEDIUM, naprawione): `/api/bot/connect`, `/api/channels/resolve`, `/api/messages/send` były dostępne bez sesji, bez kontroli Origin i bez limitów (otwarty relay do Discorda + „wyrocznia” ważności tokenów). Teraz: `Depends(throttle(N))` w `discord_routes.py` → `rate_limit.py` (sesja + Origin przez `workspace_auth.owner`, okno 60 s, limity per sesja: connect 10, resolve 30, send 12; per IP 3×; 429 + `Retry-After`, komunikat „Zbyt wiele prób…”).
+- Hardening: nagłówki `X-Frame-Options: DENY`, `CSP frame-ancestors 'none'`, `Referrer-Policy: no-referrer`, HSTS, `Permissions-Policy` w `server.py`.
+- Testy: conftest mockuje `lookup_session` (bez Mongo w testach tras), nowe testy gatingu/limitów/nagłówków; smoke publiczne zakładają sesję. Iteracja 4: 42/42 pytest + 10/10 live SEC-001 (`tests/test_sec001_live.py` wyczerpuje limit IP na ~60 s), UI connect pokazuje błąd Discorda, nie błąd przestrzeni.
+- Pozostałe uwagi niskie (poza backendem): CSP/HSTS dla hosta frontendu, 30-dniowy TTL sesji bez rotacji.
+- Ponowne prośby o self-token (token konta prywatnego, także „bez stealth”, „do testów”) — konsekwentnie odrzucone.
+
 ## Priorytety / następne działania
 - **P0:** brak otwartych usterek w zweryfikowanym zakresie. Nie dodawać self-tokenów ani trybów omijania zabezpieczeń.
 - **P1:** rzeczywista próba manualnej i zaplanowanej dostawy z oficjalnym botem na własny testowy kanał użytkownika. Nie prosić o publikowanie tokenu w czacie.

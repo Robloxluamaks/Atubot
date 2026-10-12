@@ -1,0 +1,39 @@
+{
+  "summary": "SEC-001 regression verification: route gating (403 no-origin, 401 no-cookie), authenticated path, security headers, rate limit, and frontend connect flow. All verifications pass. Full backend pytest suite 42/42 passes; new live SEC-001 suite (10/10) passes.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_sec001_live.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Security fix implementation is clean: route-level dependencies (throttle -> owner -> same_origin) applied consistently to /api/bot/connect, /api/channels/resolve, /api/messages/send.",
+    "Token value is correctly scrubbed from all response bodies (verified by assertion in every live test).",
+    "Rate-limit returns Retry-After and Polish 'Zbyt wiele prób' message with proper 429 status; per-IP and per-session sliding window buckets both effective.",
+    "Security headers middleware (privacy_headers) sets Cache-Control: 'no-store, no-cache, must-revalidate' (contains 'no-store' as required) along with X-Frame-Options: DENY, CSP frame-ancestors 'none', Referrer-Policy: no-referrer, HSTS, X-Content-Type-Options: nosniff."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_sec001_live.py (new)"
+  ],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "SEC-001 is fully verified. Backend pytest (42 tests) + new live SEC-001 suite (10 tests). Rate-limit test exhausts per-IP bucket for /api/bot/connect for ~60s; wait before re-running any UI connect test. UI token input is controlled React component — must use page.keyboard.type() (not fill()) so React state updates and submit button enables.",
+  "verifications": {
+    "no_origin_bot_connect_403": true,
+    "no_origin_channels_resolve_403": true,
+    "no_origin_messages_send_403": true,
+    "origin_no_cookie_bot_connect_401_przestrzen_wygasla": true,
+    "origin_no_cookie_channels_resolve_401": true,
+    "origin_no_cookie_messages_send_401": true,
+    "authenticated_invalid_token_401_token_bota": true,
+    "authenticated_malformed_token_422_sprawdz_token": true,
+    "token_never_echoed_in_response": true,
+    "rate_limit_11th_connect_429_with_retry_after": true,
+    "security_headers_health_endpoint": true,
+    "frontend_connect_shows_token_bota_not_przestrzen_wygasla": true,
+    "pytest_42_42_pass": true
+  }
+}
