@@ -5,8 +5,10 @@ from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException
 
 from discord_models import (BotProfile, ChannelProfile, ChannelRequest, ChannelResult,
+                            GuildRequest, GuildProfile, GuildChannelProfile,
                             SendRequest, SendResponse, TokenRequest)
-from discord_service import discord_request, get_bot, get_channel, make_client
+from discord_service import (discord_request, get_identity, get_channel,
+                             get_guilds, get_guild_channels, make_client)
 from rate_limit import throttle
 
 router = APIRouter(prefix='/api')
@@ -14,15 +16,27 @@ router = APIRouter(prefix='/api')
 
 @router.post('/bot/connect', response_model=BotProfile, dependencies=[Depends(throttle(10))])
 async def connect(payload: TokenRequest):
-    async with make_client(payload.token.get_secret_value()) as client:
-        return await get_bot(client)
+    async with make_client(payload.token.get_secret_value(), payload.mode) as client:
+        return await get_identity(client, payload.mode)
 
 
 @router.post('/channels/resolve', response_model=ChannelProfile, dependencies=[Depends(throttle(30))])
 async def resolve(payload: ChannelRequest):
-    async with make_client(payload.token.get_secret_value()) as client:
-        await get_bot(client)
+    async with make_client(payload.token.get_secret_value(), payload.mode) as client:
+        await get_identity(client, payload.mode)
         return await get_channel(client, payload.channel_id)
+
+
+@router.post('/guilds', response_model=list[GuildProfile], dependencies=[Depends(throttle(30))])
+async def list_guilds(payload: TokenRequest):
+    async with make_client(payload.token.get_secret_value(), payload.mode) as client:
+        return await get_guilds(client)
+
+
+@router.post('/guilds/channels', response_model=list[GuildChannelProfile], dependencies=[Depends(throttle(30))])
+async def list_guild_channels(payload: GuildRequest):
+    async with make_client(payload.token.get_secret_value(), payload.mode) as client:
+        return await get_guild_channels(client, payload.guild_id)
 
 
 @router.post('/messages/send', response_model=SendResponse, dependencies=[Depends(throttle(12))])
@@ -33,8 +47,8 @@ async def send(payload: SendRequest):
 async def send_batch(payload: SendRequest, should_continue=None):
     results = []
     stopped = False
-    async with make_client(payload.token.get_secret_value()) as client:
-        await get_bot(client)
+    async with make_client(payload.token.get_secret_value(), payload.mode) as client:
+        await get_identity(client, payload.mode)
         for channel_id in payload.channel_ids:
             if should_continue and not await should_continue():
                 stopped = True
